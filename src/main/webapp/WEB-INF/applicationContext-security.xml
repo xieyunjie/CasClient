@@ -14,7 +14,7 @@
 
 	<sc:http auto-config="true" entry-point-ref="casAuthenticationEntryPoint" use-expressions="true"
 		servlet-api-provision="true">
-		
+
 		<sc:anonymous enabled="false" />
 
 		<sc:access-denied-handler error-page="/error/403.jsp" />
@@ -65,8 +65,8 @@
 		<property name="serviceProperties" ref="serviceProperties" />
 		<property name="ticketValidator">
 			<!-- saml or cas2.0 -->
-			<!-- <bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator"> -->
-			<bean class="org.jasig.cas.client.validation.Saml11TicketValidator">
+			<bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
+				<!--<bean class="org.jasig.cas.client.validation.Saml11TicketValidator"> -->
 				<constructor-arg index="0" value="https://alexxie-pc:8443/SSOSite" />
 			</bean>
 		</property>
