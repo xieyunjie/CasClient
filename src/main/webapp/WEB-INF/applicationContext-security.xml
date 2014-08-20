@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:sc="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-3.0.xsd  
+						http://www.springframework.org/schema/security 
+						http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+
+	<bean id="customWebInvocationPrivilegeEvaluator" class="org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator">
+		<constructor-arg ref="webFilter" />
+	</bean>
+
+	<sc:http pattern="/error/*" security="none" />
+
+	<sc:http auto-config="true" entry-point-ref="casAuthenticationEntryPoint" use-expressions="true"
+		servlet-api-provision="true">
+		
+		<sc:anonymous enabled="false" />
+
+		<sc:access-denied-handler error-page="/error/403.jsp" />
+
+		<sc:form-login login-page="/index.jsp" default-target-url="/index.jsp" authentication-failure-url="https://alexxie-pc:8443/SSOSite"
+			authentication-success-handler-ref="successHandler" />
+		<sc:logout invalidate-session="true" logout-success-url="https://alexxie-pc:8443/SSOSite" />
+
+		<sc:session-management session-fixation-protection="none">
+			<sc:concurrency-control />
+		</sc:session-management>
+
+		<sc:custom-filter ref="casFilter" position="CAS_FILTER" />
+		<sc:custom-filter ref="webFilter" before="FILTER_SECURITY_INTERCEPTOR" />
+		<sc:custom-filter ref="singleLogoutFilter" before="CAS_FILTER" />
+	</sc:http>
+
+	<bean id="casAuthenticationEntryPoint" class="org.springframework.security.cas.web.CasAuthenticationEntryPoint">
+		<property name="loginUrl" value="https://alexxie-pc:8443/SSOSite" />
+		<property name="serviceProperties" ref="serviceProperties" />
+	</bean>
+
+	<!-- successHandler ??????? -->
+	<bean id="successHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler">
+		<property name="defaultTargetUrl" value="/index.jsp" />
+		<property name="alwaysUseDefaultTargetUrl" value="false" />
+	</bean>
+
+	<bean id="webFilter" class="com.balintimes.CasSupport.WebFilter">
+		<property name="authenticationManager" ref="authenticationManager" />
+		<property name="accessDecisionManager" ref="webAccessDecisionManager" />
+		<property name="securityMetadataSource" ref="webSecurityMetadataSource" />
+	</bean>
+
+	<bean id="webAccessDecisionManager" class="com.balintimes.CasSupport.WebAccessDecisionManager" />
+	<bean id="webSecurityMetadataSource" class="com.balintimes.CasSupport.WebSecurityMetadataSource" />
+
+	<bean id="casFilter" class="org.springframework.security.cas.web.CasAuthenticationFilter">
+		<property name="authenticationManager" ref="authenticationManager" />
+	</bean>
+
+	<sc:authentication-manager alias="authenticationManager">
+		<sc:authentication-provider ref="casAuthenticationProvider" />
+	</sc:authentication-manager>
+
+	<bean id="casAuthenticationProvider" class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
+		<property name="authenticationUserDetailsService" ref="webCasAuthenticationUserDetailsService" />
+		<property name="serviceProperties" ref="serviceProperties" />
+		<property name="ticketValidator">
+			<!-- saml or cas2.0 -->
+			<!-- <bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator"> -->
+			<bean class="org.jasig.cas.client.validation.Saml11TicketValidator">
+				<constructor-arg index="0" value="https://alexxie-pc:8443/SSOSite" />
+			</bean>
+		</property>
+		<property name="key" value="cas"></property>
+	</bean>
+
+	<bean id="serviceProperties" class="org.springframework.security.cas.ServiceProperties">
+		<property name="service" value="http://www.cas1.net:9080/CasClient/j_spring_cas_security_check" />
+		<property name="sendRenew" value="false" />
+	</bean>
+
+	<bean id="webCasAuthenticationUserDetailsService" class="com.balintimes.CasSupport.WebCasAuthenticationUserDetailsService" />
+
+
+	<!--客户端注销 -->
+	<bean id="singleLogoutFilter" class="org.jasig.cas.client.session.SingleSignOutFilter" />
+
+
+
+</beans> 

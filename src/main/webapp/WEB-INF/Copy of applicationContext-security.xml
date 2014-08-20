@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-3.0.xsd  
+						http://www.springframework.org/schema/security 
+						http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+
+
+	<security:http entry-point-ref="casAuthenticationEntryPoint" auto-config="true" use-expressions="true">
+		<security:intercept-url pattern="/**" access="isAuthenticated()" />
+		<security:custom-filter ref="casAuthenticationFilter" position="CAS_FILTER" />
+	</security:http>
+
+	<security:authentication-manager alias="authenticationManager">
+		<security:authentication-provider ref="casAuthenticationProvider" />
+	</security:authentication-manager>
+
+	<bean id="serviceProperties" class="org.springframework.security.cas.ServiceProperties">
+		<property name="service" value="http://www.cas1.net:9080/CasClient/j_spring_cas_security_check" />
+		<property name="sendRenew" value="false" />
+	</bean>
+
+	<bean id="casAuthenticationFilter" class="org.springframework.security.cas.web.CasAuthenticationFilter">
+		<property name="authenticationManager" ref="authenticationManager" />
+	</bean>
+
+	<bean id="casAuthenticationEntryPoint" class="org.springframework.security.cas.web.CasAuthenticationEntryPoint">
+		<property name="loginUrl" value="https://alexxie-pc:8443/SSOSite" />
+		<property name="serviceProperties" ref="serviceProperties" />
+	</bean>
+
+	<bean id="casAuthenticationProvider" class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
+		<property name="userDetailsService" ref="userService" />
+		<property name="serviceProperties" ref="serviceProperties" />
+		<property name="ticketValidator">
+			<!-- saml or cas2.0 -->
+			<!-- <bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator"> -->
+			<bean class="org.jasig.cas.client.validation.Saml11TicketValidator">
+				<constructor-arg index="0" value="https://alexxie-pc:8443/SSOSite" />
+			</bean>
+		</property>
+		<property name="key" value="cas"></property>
+	</bean>
+
+	<security:user-service id="userService">
+		<security:user name="user" password="user" authorities="ROLE_USER"></security:user>
+		<security:user name="a" password="aa" authorities="ROLE_USER"></security:user>
+	</security:user-service>
+</beans> 
