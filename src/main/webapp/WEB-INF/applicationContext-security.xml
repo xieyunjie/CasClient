@@ -19,9 +19,9 @@
 
 		<sc:access-denied-handler error-page="/error/403.jsp" />
 
-		<sc:form-login login-page="/index.jsp" default-target-url="/index.jsp" authentication-failure-url="https://alexxie-pc:8443/SSOSite"
+		<sc:form-login login-page="/index.jsp" default-target-url="/index.jsp" authentication-failure-url="https://alexxie-pc:8443/uCenter"
 			authentication-success-handler-ref="successHandler" />
-		<sc:logout invalidate-session="true" logout-success-url="https://alexxie-pc:8443/SSOSite" />
+		<sc:logout invalidate-session="true" logout-success-url="https://alexxie-pc:8443/uCenter" />
 
 		<sc:session-management session-fixation-protection="none">
 			<sc:concurrency-control />
@@ -33,7 +33,7 @@
 	</sc:http>
 
 	<bean id="casAuthenticationEntryPoint" class="org.springframework.security.cas.web.CasAuthenticationEntryPoint">
-		<property name="loginUrl" value="https://alexxie-pc:8443/SSOSite" />
+		<property name="loginUrl" value="https://alexxie-pc:8443/uCenter" />
 		<property name="serviceProperties" ref="serviceProperties" />
 	</bean>
 
@@ -65,9 +65,9 @@
 		<property name="serviceProperties" ref="serviceProperties" />
 		<property name="ticketValidator">
 			<!-- saml or cas2.0 -->
-			<bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
-				<!--<bean class="org.jasig.cas.client.validation.Saml11TicketValidator"> -->
-				<constructor-arg index="0" value="https://alexxie-pc:8443/SSOSite" />
+			 <!--<bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator"> -->
+			 <bean class="org.jasig.cas.client.validation.Saml11TicketValidator"> 
+				<constructor-arg index="0" value="https://alexxie-pc:8443/uCenter" />
 			</bean>
 		</property>
 		<property name="key" value="cas"></property>
